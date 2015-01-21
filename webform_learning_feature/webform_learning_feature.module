@@ -1,0 +1,78 @@
+<?php
+/**
+ * @file
+ * Code for the Webform Learning feature feature.
+ */
+
+include_once 'webform_learning_feature.features.inc';
+
+/**
+ * Implements hook_form_alter().
+ */
+function webform_learning_feature_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'webform_client_form_6':
+
+      // Remove captcha block from all steps, except the last.
+      $page_num = $form['details']['page_num']['#value'];
+      $page_count = $form['details']['page_count']['#value'];
+      if ($page_num != $page_count) {
+        unset($form['captcha']);
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_webform_select_options_info().
+ */
+function webform_learning_feature_webform_select_options_info() {
+  $items = array();
+  $items['products_list'] = array(
+    'title' => t('Products List'),
+    'options callback' => '_webform_learning_feature_get_products_list',
+  );
+
+  return $items;
+}
+
+/**
+ * Get Published nodes of Product Content Type.
+ *
+ * @return array
+ *   List of Products Content Type
+ */
+function _webform_learning_feature_get_products_list() {
+  $options = array();
+
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid', 'title'));
+  $query->condition('n.status', 1);
+  $query->condition('n.type', 'product');
+  $query->orderBy('n.title', 'ASC');
+  $result = $query->execute();
+
+  foreach ($result as $row) {
+    $options[$row->nid] = $row->title;
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function webform_learning_feature_views_data_alter(&$data) {
+  // Product Image.
+  $data['webform_submissions']['product_image'] = array(
+    'title' => t('Product Image'),
+    'help' => t('Provide a product image related to submission data'),
+    'real field' => 'sid',
+    'group' => t('Webform submission data'),
+    'field' => array(
+      'handler' => 'webform_learning_feature_handler_product_image',
+      'webform_expand' => FALSE,
+      'click sortable' => FALSE,
+    ),
+  );
+}

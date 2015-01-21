@@ -1,0 +1,17 @@
+name = Webform Learning feature
+description = 3 Steps Ajax webform with inline errors
+core = 7.x
+package = Features
+dependencies[] = features
+dependencies[] = ife
+dependencies[] = webform
+dependencies[] = webform_ajax
+dependencies[] = webform_validation
+dependencies[] = captcha_webform
+
+files[] = views/webform_learning_feature_handler_product_image.inc
+
+__drupal_alter_by_ref[][node][webform] = webform
+features[features_api][] = api:2
+features[node][] = webform
+features[webform][] = test_quiz
