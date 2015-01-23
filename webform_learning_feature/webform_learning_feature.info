@@ -10,6 +10,7 @@ dependencies[] = webform_validation
 dependencies[] = captcha_webform
 
 files[] = views/webform_learning_feature_handler_product_image.inc
+files[] = views/webform_learning_feature_handler_related_nodes.inc
 
 __drupal_alter_by_ref[][node][webform] = webform
 features[features_api][] = api:2

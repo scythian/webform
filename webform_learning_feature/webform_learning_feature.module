@@ -71,7 +71,18 @@ function webform_learning_feature_views_data_alter(&$data) {
     'group' => t('Webform submission data'),
     'field' => array(
       'handler' => 'webform_learning_feature_handler_product_image',
-      'webform_expand' => FALSE,
+      'click sortable' => FALSE,
+    ),
+  );
+
+  // Related Nodes.
+  $data['webform_submissions']['related_node'] = array(
+    'title' => t('Related nodes'),
+    'help' => t('Provide a related nodes field.'),
+    'real field' => 'sid',
+    'group' => t('Webform submission data'),
+    'field' => array(
+      'handler' => 'webform_learning_feature_handler_related_nodes',
       'click sortable' => FALSE,
     ),
   );
