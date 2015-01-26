@@ -73,6 +73,10 @@ class webform_learning_feature_handler_related_nodes extends views_handler_field
       '#description' => t('Content Type, related to webform.'),
       '#submit' => array('views_ui_config_item_form_submit_temporary'),
       '#executes_submit_callback' => TRUE,
+      '#ajax' => array(
+        'path' => views_ui_build_form_url($form_state),
+        'event' => 'change',
+      ),
     );
 
     // Content type field list.
@@ -85,6 +89,7 @@ class webform_learning_feature_handler_related_nodes extends views_handler_field
       '#default_value' => $this->options['webform_related_cp_fields'],
       '#description' => t('Select field to display.'),
     );
+
   }
 
   /**
@@ -101,10 +106,9 @@ class webform_learning_feature_handler_related_nodes extends views_handler_field
 
     $fields = field_info_instances('node', $content_type);
     if (!empty($fields)) {
-      $options['title'] = 'Title';
-      foreach ($fields['fields'] as $key => $item) {
-        $options[$key] = $item['label'];
-        dsm($key, $item);
+      $options['title'] = 'Title : title';
+      foreach ($fields as $key => $item) {
+        $options[$key] = $item['label'] . ' : ' . $item['field_name'];
       }
     }
 
@@ -192,25 +196,31 @@ class webform_learning_feature_handler_related_nodes extends views_handler_field
     $sid = $this->get_value($row);
     $nid = $this->options['webform_nid'];
     $cid = $this->options['webform_cid'];
-    $image_field = $this->options['webform_if'];
+    $content_type = $this->options['webform_related_cp'];
+    $field = $this->options['webform_related_cp_fields'];
 
     $webform = $this->webform_node;
     if (isset($sid) && isset($webform->webform['components'][$cid])) {
       $submission = $this->view->_webform_submissions[$nid][$sid];
+      $cache_id = 'webform_handler_related_nodes' . $submission->data[$cid][0];
 
       if (!empty($submission->data[$cid][0])) {
-        $node = node_load($submission->data[$cid][0]);
-        $image = field_get_items('node', $node, $image_field);
-        $output = field_view_value('node', $node, $image_field, $image[0], array(
-          'type' => 'image',
-          'settings' => array(
-            'image_style' => 'thumbnail',
-            'image_link' => 'content',
-          ),
-        ));
+        // Get node instance.
+        if ($cache = cache_get($cache_id)) {
+          $node = $cache->data;
+        }
+        else {
+          $node = node_load($submission->data[$cid][0]);
+          cache_set($cache_id, $node, 'cache', REQUEST_TIME + 5);
+        }
+
+        // Get the instance for display settings.
+        $instance = field_read_instance('node', $field, $content_type);
+        // Prepare field for render, using webform display.
+        $output = field_view_field('node', $node, $field, $instance['display']['webform_submissions_view']);
       }
     }
 
-    return render($output);
+    return drupal_render($output);
   }
 }

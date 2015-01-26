@@ -72,6 +72,7 @@ function webform_learning_feature_views_data_alter(&$data) {
     'field' => array(
       'handler' => 'webform_learning_feature_handler_product_image',
       'click sortable' => FALSE,
+      'webform_expand' => FALSE,
     ),
   );
 
@@ -84,6 +85,17 @@ function webform_learning_feature_views_data_alter(&$data) {
     'field' => array(
       'handler' => 'webform_learning_feature_handler_related_nodes',
       'click sortable' => FALSE,
+      'webform_expand' => FALSE,
     ),
+  );
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function webform_learning_feature_entity_info_alter(&$entity_info) {
+  $entity_info['node']['view modes']['webform_submissions_view'] = array(
+    'label' => t('Webform Submissions'),
+    'custom settings' => TRUE,
   );
 }
